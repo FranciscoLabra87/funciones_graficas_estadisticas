@@ -1,0 +1,29 @@
+# Confeccion del modelo
+
+
+
+X=df[['Col1','Col2,'Col3]] # variables dependientes
+y=df.Col_y # Variable Independientte
+
+# Division de datos en conjunto de entrenamiento y prueba
+X_train, X_test, y_train, y_test=train_test_split(X,y,test_size=0.3,random_state=42)
+
+#incializar y entreggar modelo de regresion lineal
+modelo_con_intercepto=LinearRegression(fit_intercept=True)
+modelo_con_intercepto.fit(X_train,y_train)
+
+# realizar predicciones
+
+prediccion_con_intercepto=modelo_con_intercepto.predict(X_test)
+
+# prepara X_train para stastmodel añiadiend contaste para intercepoto
+
+
+X_train_con_intercepto=sm.add_constant(X_train)
+
+# ajuusstar el modelo utilizando stasmodels e informe
+
+modelo_con_intercepto_sm=sm.OLS(y_train,X_train_con_intercepto).fit()
+
+resumen_modelo=modelo_con_intercepto_sm.summary()
+resumen_modelo
