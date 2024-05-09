@@ -1,0 +1,8 @@
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+vif_data=pd.DataFrame()
+vif_data['Feature']=X_train_con_intercepto.columns
+vif_data['VIF']=[variance_inflation_factor(X_train_con_intercepto.values,I)
+                for I in range(len(X_train_con_intercepto.columns))]
+
+vif_data
