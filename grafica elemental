@@ -1,0 +1,49 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.stats import norm  
+
+# Funcion para graficar con curva de tendencia noraml 
+
+def grafico_de_barra(dataframe,columna:str):
+    # Configuración de Seaborn
+    sns.set(style="whitegrid")
+
+    # Crear el histograma
+    sns.histplot(df[columna], bins=30, kde=False, color='blue', stat='density')
+
+
+    xmin, xmax = plt.xlim()  
+    x = np.linspace(xmin, xmax, 100)
+    mean = np.mean(dataframe[columna])
+    std = np.std(dataframe[columna])
+    p = norm.pdf(x, mean, std) 
+
+    # Dibujar la curva normal
+    plt.plot(x, p, 'k', linewidth=2, color='red')  # Color rojo para la curva
+    title = "Fit results: mean = %.2f, std = %.2f" % (mean, std)
+    plt.title(title)
+
+    return plt.show()
+
+
+def matriz_correlacion(dataframe):
+    
+    
+    datos_numericos = dataframe.select_dtypes(include=['number']) # Solo datos numericos
+    corr = datos_numericos.corr()
+    
+
+    plt.figure(figsize=(10, 8))  #tamaño de la figura
+    sns.heatmap(corr, annot=True, cmap='coolwarm',square=True)
+    plt.title('Matriz de Correlacion')
+    
+    # Mostrar el heatmap
+    plt.show()
+
+
+
+def grafico_de_tendencia(df,columna1:str ,columna2:str):
+#                                             Tamaño de las "Bolitas"    # Color de la linea de tendencia 
+    return sns.regplot(x=columna1, y=columna2, data=df, scatter_kws={"s": 15}, line_kws={"color": "red"})
