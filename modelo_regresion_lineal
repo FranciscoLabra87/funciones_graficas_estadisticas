@@ -1,29 +1,96 @@
-# Confeccion del modelo
+def funcion_de_regresion_con_ols(dataframe):
+    # Confeccion del modelo
 
 
+    ## https://github.com/FranciscoLabra87/funciones_graficas_estadisticas/blob/main/modelo_regresion_lineal
+    
+    # 2..0 Con esterioides !!!!!!
+    # 3..0 SuperVitaminada con VIF includo
 
-X=df[['Col1','Col2,'Col3]] # variables dependientes
-y=df.Col_y # Variable Independientte
+    # X=df.columns.drop('Weight')
+    X=dataframe[['Height', 'Volumen']] # TODO , deberia ser una lista a incluir por parametro opcional con funcion,
+    y=dataframe.Weight                 #      y manejo de expeciones 
 
-# Division de datos en conjunto de entrenamiento y prueba
-X_train, X_test, y_train, y_test=train_test_split(X,y,test_size=0.3,random_state=42)
+    # division de datoss en conjunto de entrenamiento y prueba
+    X_train, X_test, y_train, y_test=train_test_split(X,y,test_size=0.3,random_state=42)
 
-#incializar y entreggar modelo de regresion lineal
-modelo_con_intercepto=LinearRegression(fit_intercept=True)
-modelo_con_intercepto.fit(X_train,y_train)
+    #incializar y entreggar modelo de regresion lineal
+    modelo_con_intercepto=LinearRegression(fit_intercept=True)
+    modelo_con_intercepto.fit(X_train,y_train)
 
-# realizar predicciones
+    # realizar predicciones
 
-prediccion_con_intercepto=modelo_con_intercepto.predict(X_test)
+    prediccion_con_intercepto=modelo_con_intercepto.predict(X_test)
 
-# prepara X_train para stastmodel añiadiend contaste para intercepoto
+    # prepara X_train para stastmodel añiadiend contaste para intercepoto
 
 
-X_train_con_intercepto=sm.add_constant(X_train)
+    X_train_con_intercepto=sm.add_constant(X_train)
 
-# ajuusstar el modelo utilizando stasmodels e informe
+    # ajuusstar el modelo utilizando stasmodels e informe
 
-modelo_con_intercepto_sm=sm.OLS(y_train,X_train_con_intercepto).fit()
+    modelo_con_intercepto_sm=sm.OLS(y_train,X_train_con_intercepto).fit()
 
-resumen_modelo=modelo_con_intercepto_sm.summary()
-resumen_modelo
+    resumen_modelo=modelo_con_intercepto_sm.summary()
+    
+    # MAE
+    suma_errores=0  
+    n=len(y_test) # Valores Reales
+
+    #                           Y_Test            Valores Predichos        
+    for real, predicho in zip(y_test, prediccion_con_intercepto):
+        error=abs(real - predicho)  
+        suma_errores+=error 
+
+    mae = suma_errores/n 
+    print (f'MAE:',mae.round(4))
+
+    # MSE
+    suma_errores_cuadrados = 0  
+    n2 = len(y_test)  
+
+   
+    for real2, predicho2 in zip(y_test, prediccion_con_intercepto):
+        error2 = (real2 - predicho2)**2  
+        suma_errores_cuadrados+=error2 
+
+    mse=suma_errores_cuadrados/n2
+    print (f'MSE:',mse.round(4))
+
+    
+    # Graficando # GRAFIO NO ES PROPIO !!!!! 
+    
+    y_test=np.array(y_test)
+    prediccion_con_intercepto = np.array(prediccion_con_intercepto)
+
+
+    indices_ordenados=np.argsort(y_test) # Ordena los indices 
+    y_test_ordenado=y_test[indices_ordenados]
+    prediccion_ordenada=prediccion_con_intercepto[indices_ordenados]
+
+    plt.figure(figsize=(10, 6))  # Configurar tamaño de la figura
+    plt.scatter(range(len(y_test_ordenado)), y_test_ordenado, color='blue', label='Valores Reales', alpha=0.6)
+    plt.scatter(range(len(prediccion_ordenada)), prediccion_ordenada, color='red', label='Valores Predichos', alpha=0.6)
+
+
+    z=np.polyfit(range(len(y_test_ordenado)), y_test_ordenado, 1) # Ajuste de linea de tendencia
+    p=np.poly1d(z)
+    plt.plot(range(len(y_test_ordenado)), p(range(len(y_test_ordenado))), "k--", label='Línea de Tendencia')
+
+    plt.title('Comparación de Valores Reales vs. Predichos Ordenados con Línea de Tendencia')
+    plt.xlabel('Índice de la Muestra Ordenada')
+    plt.ylabel('Valores')
+    plt.legend()
+    plt.show()
+    
+    
+    # VIF incluido 
+    vif_data=pd.DataFrame()
+    vif_data['Feature']=X_train_con_intercepto.columns
+    vif_data['VIF']=[variance_inflation_factor(X_train_con_intercepto.values,I)
+                for I in range(len(X_train_con_intercepto.columns))]
+
+    print(vif_data)
+
+    
+    return resumen_modelo
